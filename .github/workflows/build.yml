@@ -1,6 +1,7 @@
 name: Build COSMIC Epoch for Debian
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
