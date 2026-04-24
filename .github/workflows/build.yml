@@ -22,7 +22,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: debian:bookworm
-          options: -v ${{ github.workspace }}:/root
+          options: -v ${{ github.workspace }}:/work
           run: |
             echo "deb http://deb.debian.org/debian bookworm-backports main" >> /etc/apt/sources.list
             apt update
