@@ -22,7 +22,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: debian:bookworm
-          options: -v ${{ github.workspace }}:/work
+          options: -v ${{ github.workspace }}:/root
           run: |
             echo "deb http://deb.debian.org/debian bookworm-backports main" >> /etc/apt/sources.list
             apt update
@@ -39,6 +39,7 @@ jobs:
             cd /work
             rustup toolchain install stable
             cargo install just
+            git config --global --add safe.directory /work
             just sysext
             mkdir -p staging
             cp *.raw staging/ || cp *.img staging/ || cp *cosmic-sysext* staging/ || echo "No image found"
