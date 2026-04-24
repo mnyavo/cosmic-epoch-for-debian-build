@@ -1,0 +1,58 @@
+name: Build COSMIC Epoch for Debian
+
+on:
+  push:
+    tags:
+      - 'v*'
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+            build-essential dbus git libclang-dev libdbus-1-dev \
+            libdisplay-info-dev libexpat1-dev libflatpak-dev \
+            libfontconfig-dev libfreetype-dev libgbm-dev libglvnd-dev \
+            libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev \
+            libinput-dev libpam0g-dev libpipewire-0.3-dev libpixman-1-dev \
+            libpulse-dev libseat-dev libssl-dev libsystemd-dev \
+            libwayland-dev libxkbcommon-dev lld mold curl udev
+
+      - name: Install Rust and Just
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          export PATH="$HOME/.cargo/bin:$PATH"
+          rustup toolchain install stable
+          cargo install just
+
+      - name: Build COSMIC System Extension
+        run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          just sysext
+
+      - name: Package Release Artifacts into temporary dir
+        run: |
+          mkdir -p staging
+          cp *.raw staging/ || cp *.img staging/ || cp *cosmic-sysext* staging/ || echo "No image found"
+
+      - name: Make Release and Upload
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            staging/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
