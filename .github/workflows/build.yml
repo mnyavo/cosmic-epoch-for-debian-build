@@ -24,8 +24,9 @@ jobs:
           image: debian:bookworm
           options: -v ${{ github.workspace }}:/work
           run: |
-            apt-get update
-            apt-get install -y \
+            echo "deb http://deb.debian.org/debian bookworm-backports main" >> /etc/apt/sources.list
+            apt update
+            apt install -t bookworm-backports -y \
               build-essential dbus git libclang-dev libdbus-1-dev \
               libdisplay-info-dev libexpat1-dev libflatpak-dev \
               libfontconfig-dev libfreetype-dev libgbm-dev libglvnd-dev \
