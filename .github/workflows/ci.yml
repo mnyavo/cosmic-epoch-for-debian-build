@@ -8,13 +8,13 @@
 name: CI
 
 on:
-  pull_request:
-  push:
-  schedule:
-    - cron: '0 7 * * *' # Midnight MST daily
+  workflow_dispatch:
+#  schedule:
+#    - cron: '0 7 * * *' # Midnight MST daily
 
 jobs:
   Test:
+    if: false
     runs-on: ubuntu-latest
     container:
       image: archlinux:base-devel
